@@ -84,7 +84,6 @@ async function getAlbumById(req, res) {
     });
 };      
 
-// Add this to your music.controller.js
 async function getMyMusic(req, res) {
     try {
         const musics = await musicModel

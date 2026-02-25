@@ -38,7 +38,7 @@ async function authUser(req, res, next) {
     }
 }
 
-// NEW: Allow both users and artists to access
+
 async function authAny(req, res, next) {
     const token = req.cookies.token;
     
@@ -48,7 +48,6 @@ async function authAny(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        // Any authenticated user (both user and artist) can access
         req.user = decoded;
         next();
     } catch (error) {
