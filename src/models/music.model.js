@@ -1,24 +1,15 @@
 const mongoose = require('mongoose')
 
-
-
 const musicSchema = new mongoose.Schema({
-    uri : {
-        type : String,
-        required : true,
+    uri: { type: String, required: true },
+    title: { type: String, required: true },
+    artist: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+        required: true
     },
-    title : {
-        type : String,
-        required : true
-    },
-    artist : {
-        type : mongoose.Schema.Types.ObjectId,
-        ref : "user",
-        required : true
-    }
+    tags: { type: String, default: '' }  // ← English search keywords
 })
 
 const musicModel = mongoose.model('music', musicSchema)
-
-
 module.exports = musicModel

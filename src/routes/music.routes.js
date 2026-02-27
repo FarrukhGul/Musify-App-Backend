@@ -23,4 +23,8 @@ router.get('/', authMiddleware.authUser, musicController.getAllMusics)
 router.get('/albums', authMiddleware.authAny, musicController.getAllAlbums)
 router.get('/albums/:id', authMiddleware.authAny, musicController.getAlbumById)
 
+
+// User routes ke saath
+router.get('/search', authMiddleware.authUser, musicController.searchMusics)
+
 module.exports = router
