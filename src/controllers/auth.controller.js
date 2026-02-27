@@ -2,6 +2,8 @@ const userModel = require('../models/user.model')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 
+const { uploadFile } = require('../services/storage.service');
+
 async function registerUser(req, res) {
     try {
         const { username, email, password, role = 'user' } = req.body;
@@ -60,4 +62,63 @@ async function logoutUser(req, res) {
     res.status(200).json({ message: "User logged out successfully" });
 }
 
-module.exports = { registerUser, loginUser, logoutUser };
+
+async function updateProfile(req, res) {
+    try {
+        const { username, bio } = req.body;
+        const file = req.file;
+
+        console.log('File received:', file ? file.originalname : 'NO FILE');
+        console.log('File size:', file?.size);
+
+        // Pehle existing user dhundo
+        const existingUser = await userModel.findById(req.user.id);
+        
+        // Agar naya file aya to upload karo, warna purani pic rakhho
+        let profilePicUrl = existingUser.profilePic || '';
+
+        if (file) {
+            try {
+                const result = await uploadFile(file.buffer.toString('base64'));
+                console.log('ImageKit URL:', result.url);
+                profilePicUrl = result.url;
+            } catch (uploadError) {
+                console.error('ImageKit upload error:', uploadError);
+                return res.status(500).json({ message: "Image upload failed", error: uploadError.message });
+            }
+        }
+
+        const user = await userModel.findByIdAndUpdate(
+            req.user.id,
+            { username, bio, profilePic: profilePicUrl },
+            { new: true }
+        ).select('-password');
+
+        res.status(200).json({
+            message: "Profile updated successfully",
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                profilePic: user.profilePic,
+                bio: user.bio
+            }
+        });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({ message: "Profile update failed", error: error.message });
+    }
+}
+
+async function getProfile(req, res) {
+    try {
+        const user = await userModel.findById(req.user.id).select('-password');
+        res.status(200).json({ user });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to get profile", error: error.message });
+    }
+}
+
+module.exports = { registerUser, loginUser, logoutUser, updateProfile, getProfile };
+
