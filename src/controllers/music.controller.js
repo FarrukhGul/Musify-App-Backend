@@ -24,27 +24,32 @@ async function createMusic(req, res) {
         music: { id: music._id, uri: music.uri, title: music.title, artist: music.artist }
     });
 }
+async function createAlbum(req, res) {
+    const { title} = req.body;
+    const musics = JSON.parse(req.body.musics || '[]');
+    const file = req.file;  // image file
 
-async function createAlbum(req, res){
+    let coverImage = '';
+    if (file) {
+        const result = await uploadFile(file.buffer.toString('base64'));
+        coverImage = result.url;
+    }
 
-        const {title, musics} = req.body
-        const album = await albumModel.create({
-            title,
-            musics : musics,
-            artist : req.user.id,
-        });
+    const album = await albumModel.create({
+        title,
+        musics,
+        coverImage,  
+        artist: req.user.id,
+    });
 
-
-        res.status(201).json({
-            id : album._id,
-            title : album.title,
-            artist : album.artist,
-            music: album.musics
-        })
-
-    
-};
-
+    res.status(201).json({
+        id: album._id,
+        title: album.title,
+        artist: album.artist,
+        coverImage: album.coverImage,
+        music: album.musics
+    });
+}
 
 // In your getAllMusics function
 async function getAllMusics(req, res) {
@@ -62,7 +67,7 @@ async function getAllMusics(req, res) {
 async function getAllAlbums(req, res) {
     const albums = await albumModel
         .find()
-        .select('title artist musics')
+        .select('title artist musics coverImage')
         .populate('artist', 'username email')
         .populate('musics'); 
 

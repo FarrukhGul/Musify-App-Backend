@@ -1,29 +1,25 @@
 const express = require('express')
 const musicController = require('../controllers/music.controller')
 const multer = require('multer')
-
-//middleware
 const authMiddleware = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
-const upload = multer({
-    storage : multer.memoryStorage(),
-})
+const upload = multer({ storage: multer.memoryStorage() })
 
-/* Artist routes (only artists can access) */
+/* Artist routes */
 router.post('/upload', authMiddleware.authArtist, upload.single('music'), musicController.createMusic)
-router.post('/album', authMiddleware.authArtist, musicController.createAlbum)
+router.post('/album', authMiddleware.authArtist, upload.single('coverImage'), musicController.createAlbum)  // ✅ sirf ek baar, coverImage ke saath
 router.get('/my-music', authMiddleware.authArtist, musicController.getMyMusic)
 
-/* User routes (only users can access) */
-router.get('/', authMiddleware.authUser, musicController.getAllMusics)
+/* Search */
+router.get('/search', authMiddleware.authAny, musicController.searchMusics)
 
-/* Public routes (any authenticated user - both users and artists) */
-router.get('/albums', authMiddleware.authAny, musicController.getAllAlbums)
+/* Albums - specific pehle, dynamic baad mein */
+router.get('/albums', authMiddleware.authAny, musicController.getAllAlbums)     
 router.get('/albums/:id', authMiddleware.authAny, musicController.getAlbumById)
 
-// Search route - both users and artists can search
-router.get('/search', authMiddleware.authAny, musicController.searchMusics)
+/* All music */
+router.get('/', authMiddleware.authUser, musicController.getAllMusics)
 
 module.exports = router
