@@ -15,11 +15,18 @@ router.get('/my-music', authMiddleware.authArtist, musicController.getMyMusic)
 /* Search */
 router.get('/search', authMiddleware.authAny, musicController.searchMusics)
 
-/* Albums - specific pehle, dynamic baad mein */
+/* Liked Songs - /:id se PEHLE */
+router.get('/liked', authMiddleware.authAny, musicController.getLikedSongs)
+
+/* Albums */
 router.get('/albums', authMiddleware.authAny, musicController.getAllAlbums)     
 router.get('/albums/:id', authMiddleware.authAny, musicController.getAlbumById)
 
 /* All music */
 router.get('/', authMiddleware.authUser, musicController.getAllMusics)
+
+/* Like / Unlike */
+router.post('/:id/like', authMiddleware.authAny, musicController.likeMusic)
+router.delete('/:id/like', authMiddleware.authAny, musicController.unlikeMusic)
 
 module.exports = router

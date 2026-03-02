@@ -69,7 +69,10 @@ async function getAllAlbums(req, res) {
         .find()
         .select('title artist musics coverImage')
         .populate('artist', 'username email')
-        .populate('musics'); 
+        .populate({
+            path: 'musics',
+            populate: { path: 'artist', select: 'username email' }
+        });
 
     res.status(200).json({
         message: "Albums fetched successfully",
@@ -79,15 +82,21 @@ async function getAllAlbums(req, res) {
 
 async function getAlbumById(req, res) {
     const { id } = req.params;
-    const album = await albumModel.findById(id).populate('artist', 'username email').populate('musics');                         
-    if(!album) {
+    const album = await albumModel.findById(id)
+        .populate('artist', 'username email')
+        .populate({
+            path: 'musics',
+            populate: { path: 'artist', select: 'username email' }
+        });
+
+    if (!album) {
         return res.status(404).json({ message: "Album not found..." });
-    };
+    }
     res.status(200).json({
-        message : "Album fetched successfully",
-        album : album
+        message: "Album fetched successfully",
+        album: album
     });
-};      
+}
 
 async function getMyMusic(req, res) {
     try {
@@ -136,6 +145,48 @@ async function searchMusics(req, res) {
     }
 }
 
+
+async function likeMusic(req, res) {
+    try {
+        const userModel = require('../models/user.model');
+        const { id } = req.params;
+        await userModel.findByIdAndUpdate(req.user.id, {
+            $addToSet: { likedSongs: id }
+        });
+        res.status(200).json({ message: "Song liked" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to like", error: error.message });
+    }
+}
+
+async function unlikeMusic(req, res) {
+    try {
+        const userModel = require('../models/user.model');
+        const { id } = req.params;
+        await userModel.findByIdAndUpdate(req.user.id, {
+            $pull: { likedSongs: id }
+        });
+        res.status(200).json({ message: "Song unliked" });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to unlike", error: error.message });
+    }
+}
+
+async function getLikedSongs(req, res) {
+    try {
+        const userModel = require('../models/user.model');
+        const user = await userModel.findById(req.user.id)
+            .populate({
+                path: 'likedSongs',
+                populate: { path: 'artist', select: 'username email' }
+            });
+        res.status(200).json({ message: "Liked songs fetched", musics: user.likedSongs });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch liked songs", error: error.message });
+    }
+}
+
+
 module.exports = { 
     createMusic, 
     createAlbum, 
@@ -143,5 +194,8 @@ module.exports = {
     getAllAlbums, 
     getAlbumById,
     getMyMusic,
-    searchMusics  
+    searchMusics,
+    likeMusic,     
+    unlikeMusic,    
+    getLikedSongs   
 };
