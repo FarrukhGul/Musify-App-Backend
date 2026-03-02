@@ -7,7 +7,7 @@ const albumModel = require('../models/album.model');
 
 
 async function createMusic(req, res) {
-    const { title, tags } = req.body;  // ← tags add kiya
+    const { title, tags } = req.body;  
     const file = req.file;
 
     const result = await uploadFile(file.buffer.toString('base64'));
@@ -15,7 +15,7 @@ async function createMusic(req, res) {
     const music = await musicModel.create({
         uri: result.url,
         title,
-        tags: tags || '',   // ← save karo
+        tags: tags || '',  
         artist: req.user.id
     });
 
@@ -123,11 +123,11 @@ async function searchMusics(req, res) {
         const musics = await musicModel.find({
             $or: [
                 { title: { $regex: q, $options: 'i' } },
-                { tags: { $regex: q, $options: 'i' } },   // ← tags se bhi search
+                { tags: { $regex: q, $options: 'i' } },   // ← Seach with tags
                 { artist: { $in: artistIds } }
             ]
         })
-        .limit(20)
+        .limit(10)
         .populate('artist', 'username email');
 
         res.status(200).json({ message: "Search results", musics });

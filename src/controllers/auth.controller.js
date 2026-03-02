@@ -22,7 +22,8 @@ async function registerUser(req, res) {
         const hash = await bcrypt.hash(password, 10);
         const user = await userModel.create({ username: finalUsername, email, password: hash, role });
 
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ id: user._id, role: user.role },
+             process.env.JWT_SECRET, { expiresIn: '1d' });
 
         res.status(201).json({
             message: "User registered successfully",
@@ -55,7 +56,7 @@ async function loginUser(req, res) {
         const token = jwt.sign({
             id: user._id,
             role: user.role,
-        }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
         res.status(200).json({
             message: "User Logged in Successfully",
@@ -88,10 +89,10 @@ async function updateProfile(req, res) {
         console.log('File received:', file ? file.originalname : 'NO FILE');
         console.log('File size:', file?.size);
 
-        // Pehle existing user dhundo
+        // First Find existing file
         const existingUser = await userModel.findById(req.user.id);
 
-        // Agar naya file aya to upload karo, warna purani pic rakhho
+        // Upload the new file, or else keep old one
         let profilePicUrl = existingUser.profilePic || '';
 
         if (file) {
