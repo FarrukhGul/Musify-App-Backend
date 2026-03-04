@@ -187,6 +187,22 @@ async function getLikedSongs(req, res) {
 }
 
 
+async function downloadMusic(req, res) {
+    try {
+        const music = await musicModel.findById(req.params.id);
+        if (!music) return res.status(404).json({ message: "Music not found" });
+
+        const response = await fetch(music.uri);
+        const buffer = await response.arrayBuffer();
+
+        res.setHeader('Content-Type', 'audio/mpeg');
+        res.setHeader('Content-Disposition', `attachment; filename="${music.title}.mp3"`);
+        res.send(Buffer.from(buffer));
+    } catch (error) {
+        res.status(500).json({ message: "Download failed", error: error.message });
+    }
+}
+
 module.exports = { 
     createMusic, 
     createAlbum, 
@@ -197,5 +213,6 @@ module.exports = {
     searchMusics,
     likeMusic,     
     unlikeMusic,    
-    getLikedSongs   
+    getLikedSongs,
+    downloadMusic
 };

@@ -29,4 +29,7 @@ router.get('/', authMiddleware.authUser, musicController.getAllMusics)
 router.post('/:id/like', authMiddleware.authAny, musicController.likeMusic)
 router.delete('/:id/like', authMiddleware.authAny, musicController.unlikeMusic)
 
+// router for music download
+router.get('/:id/download', authMiddleware.authAny, musicController.downloadMusic);
+
 module.exports = router
