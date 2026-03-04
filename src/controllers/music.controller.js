@@ -196,7 +196,7 @@ async function downloadMusic(req, res) {
         const buffer = await response.arrayBuffer();
 
         res.setHeader('Content-Type', 'audio/mpeg');
-        res.setHeader('Content-Disposition', `attachment; filename="${music.title}.mp3"`);
+        res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(music.title)}.mp3"; filename*=UTF-8''${encodeURIComponent(music.title)}.mp3`);
         res.send(Buffer.from(buffer));
     } catch (error) {
         res.status(500).json({ message: "Download failed", error: error.message });
