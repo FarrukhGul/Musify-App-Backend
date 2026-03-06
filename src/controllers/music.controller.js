@@ -203,6 +203,60 @@ async function downloadMusic(req, res) {
     }
 }
 
+async function deleteMusic(req, res){
+    try{
+        // Check if music exists
+        const music = await musicModel.findById(req.params.id);
+
+        // If music not found, return 404 Not Found
+        if(!music)return res.status(404).json({message: "Music not found"});
+
+        // Check if the logged in user is the artist of the music
+        if(music.artist.toString() !== req.user.id.toString()){
+            return res.status(403).json({message: "You are not authorized to delete this music"});
+        }
+
+        // Delete the music
+       await musicModel.findByIdAndDelete(req.params.id);
+
+        // Remove the music from any albums that contain it
+        await albumModel.updateMany(
+            {musics : req.params.id},
+            {$pull : {musics: req.params.id}}
+        )
+
+        // Return success response
+        res.status(200).json({message: "Music deleted successfully"});
+
+    }
+    catch(error){
+        // Return error response
+        res.status(500).json({message: "Failed to delete music", error: error.message});
+    }
+    
+    }
+
+async function deleteAlbum(req, res){
+    try{
+        const album = await albumModel.findById(req.params.id);
+
+        if(!album) return res.status(404).json({message: "Album not found"});
+
+        if(album.artist.toString() !== req.user.id.toString()){
+            return res.status(403).json({message: "You are not authorized to delete this album"});
+        };
+
+        await albumModel.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({message: "Album deleted successfully"});
+    }
+    catch(error){
+       res.status(500).json({
+        message: "Failed to delete album",
+        error: error.message
+    });
+    }
+}
 module.exports = { 
     createMusic, 
     createAlbum, 
@@ -214,5 +268,7 @@ module.exports = {
     likeMusic,     
     unlikeMusic,    
     getLikedSongs,
-    downloadMusic
+    downloadMusic,
+    deleteMusic,
+    deleteAlbum
 };

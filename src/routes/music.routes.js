@@ -32,4 +32,10 @@ router.delete('/:id/like', authMiddleware.authAny, musicController.unlikeMusic)
 // router for music download
 router.get('/:id/download', authMiddleware.authAny, musicController.downloadMusic);
 
+//router to delete the music
+router.delete('/:id', authMiddleware.authArtist, musicController.deleteMusic);
+
+//router to delete the album
+router.delete('/album/:id', authMiddleware.authArtist, musicController.deleteAlbum);
+
 module.exports = router
