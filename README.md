@@ -47,7 +47,7 @@ npm install
 Create `.env` in the root:
 
 ```env
-PORT=5000
+PORT=3000
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
