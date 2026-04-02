@@ -53,7 +53,7 @@ JWT_SECRET=your_jwt_secret
 IMAGEKIT_PUBLIC_KEY=your_imagekit_public_key
 IMAGEKIT_PRIVATE_KEY=your_imagekit_private_key
 IMAGEKIT_URL_ENDPOINT=your_imagekit_url_endpoint
-NODE_ENV=development
+
 ```
 
 ### Run
